@@ -1,0 +1,55 @@
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"  # Streamlit app
+      - "5678:5678"  # Optional debugging port
+    volumes:
+      - .:/app
+    command: streamlit run main.py --server.port=8501 --server.address=0.0.0.0
+    restart: always
+    depends_on:
+      - ollama
+    networks:
+      - ollama-docker
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "7869:11434"  # Ollama API endpoint
+    volumes:
+      - .:/code
+      - ./ollama/ollama:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ollama list || exit 1
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ollama-docker
+
+  ollama-models-pull:
+      container_name: ollama-models-pull
+      image: curlimages/curl:latest
+      command: >
+        http://ollama:11434/api/pull -d '{"name":"llama3.1"}'
+      depends_on:
+        ollama:
+          condition: service_healthy
+      networks:
+        - ollama-docker
+
+networks:
+  ollama-docker:
+    driver: bridge
