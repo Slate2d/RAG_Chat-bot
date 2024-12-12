@@ -8,9 +8,8 @@ class OllamaAPI:
         self.responses = []
 
     def generate_response(self, question, context):
-        """Generate response from Ollama API"""
         data = {
-            "model": "llama3.1",  # Replace with your Ollama model name
+            "model": "llama3.1",
             "prompt": f"Context: {context}\nQuestion: {question}\nAnswer:"
         }
         headers = {"Content-Type": "application/json"}
@@ -23,7 +22,6 @@ class OllamaAPI:
             print(f"Error: {response.status_code} - {response.text}")
 
     def parse_response(self, response_text):
-        """Parse the responses from Ollama"""
         response_text = response_text.strip()
         json_objects = response_text.splitlines()
         for json_str in json_objects:
@@ -35,5 +33,4 @@ class OllamaAPI:
                 print(f"Error parsing JSON: {e}")
 
     def get_full_response(self):
-        """Return the full concatenated response"""
         return ''.join(self.responses)
