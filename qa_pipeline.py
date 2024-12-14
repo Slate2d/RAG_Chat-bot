@@ -4,7 +4,7 @@ from langchain_ollama import OllamaLLM
 
 class QAPipeline:
     def __init__(self, vector_store):
-        self.llm = OllamaLLM(model="llama3.1", base_url="http://localhost:11434")
+        self.llm = OllamaLLM(model="llama3.1", base_url="http://ollama:11434")
         self.qa_chain = RetrievalQA.from_chain_type(
             llm=self.llm,
             retriever=vector_store.as_retriever()
